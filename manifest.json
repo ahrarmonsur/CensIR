@@ -8,13 +8,13 @@
 		"declarativeContent"
 	],
 	"icons": {
-	  "128": "images/trigger_warning_128.ico",
+	  "128": "images/trigger_warning_128.ico"
 	},
 	"browser_action": {
 		"default_icon": {
 			"128": "images/trigger_warning_128.ico",
 		},
-		"default_title": "CensIR: Manage an unpredictable internet",
+		"default_title": "CensIR: Manage an unpredictable internet"
 	},
 	"background": {
 		"persistent": false,
@@ -27,8 +27,8 @@
 			"matches": ["<all_urls>"],
 			"css": ["styles.css"],
 			"js": ["content.js"]
-		},
+		}
 	],
 	"default_locale": "en",
-	"manifest_version": 2,
+	"manifest_version": 2
 }
