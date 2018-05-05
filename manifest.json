@@ -1,7 +1,7 @@
 {
 	"name": "CensIR",
 	"version": "1.0",
-	"description": "Censors trigger images",
+	"description": "Censors triggering content",
 	"icons": { "128": "icon_128.png" },
 	"permissions": [
 		"activeTab",
@@ -14,7 +14,7 @@
 		"default_icon": {
 			"128": "images/trigger_warning_128.ico",
 		},
-		"default_title": "CensIR: Manage your triggers",
+		"default_title": "CensIR: Manage an unpredictable internet",
 	},
 	"background": {
 		"persistent": false,
