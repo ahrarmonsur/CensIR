@@ -12,7 +12,7 @@
 	},
 	"browser_action": {
 		"default_icon": {
-			"128": "images/trigger_warning_128.ico",
+			"128": "images/trigger_warning_128.ico"
 		},
 		"default_title": "CensIR: Manage an unpredictable internet"
 	},
@@ -29,6 +29,5 @@
 			"js": ["content.js"]
 		}
 	],
-	"default_locale": "en",
 	"manifest_version": 2
 }
