@@ -1,15 +1,25 @@
-$(document).ready(function() {
-	console.log("DOM READY!");
-	// var imgs = getImages().addClass("blur");
-	var imgs = getImagesInDOM();
-	// wrapInCensirContainer(imgs);
-	prepareForCensir(imgs);
+var conceptThreshold = 0.9;			// Confidence level of classification which qualifies it for a concept
+var triggerConceptThreshold = 0.8;
 
+$(document).ready(function() {
 	var clarifaiApp = new Clarifai.App({
 		apiKey: "be92bb8592f44e7fa02259b00bf0e332"
 	});
 
-	predictModeration(clarifaiApp, imgs[1].src);
+	var imgs = getImagesInDOM();
+	imgs.each(function() {
+		var img = $(this);
+		prepareForCensir(img);
+		console.log(img[0].src);
+
+		predictModeration(clarifaiApp, img[0].src)
+			.then(function(resp) {
+				handleModerationRating(resp, img);
+			})
+			.catch(function(err) {
+				handleModerationRating(null, img);
+			});
+	});
 });
 
 
@@ -34,16 +44,17 @@ function getImagesInDOM() {
 };
 
 function predictModeration(app, imgURL) {
-	app.models.predict("d16f390eb32cad478c7ae150069bd2c6", imgURL).then(
-		function(response) {
-			// do something with response
-			console.log("Resp: ", response);
-		},
-		function(err) {
-			console.log("ERR: ", err);
-			// there was an error
-		}
-	);
+	return app.models.predict("d16f390eb32cad478c7ae150069bd2c6", imgURL);
+	// return app.models.predict("d16f390eb32cad478c7ae150069bd2c6", imgURL).then(
+	// 	function(response) {
+	// 		// do something with response
+	// 		console.log("Resp: ", response);
+	// 	},
+	// 	function(err) {
+	// 		console.log("ERR: ", err);
+	// 		// there was an error
+	// 	}
+	// );
 };
 
 function wrapInCensirContainer(jqEls) {
@@ -61,6 +72,70 @@ function prepareForCensir(jqEls) {
 	imgs.siblings(".censirCenteredContainer").html(loader);
 	return imgs;
 };
+
+function handleModerationRating(resp, jqEl) {
+	// resp: Response object from the Clarifai API
+	// jqEl: jquery DOM element to modify based on the classification
+	if (!resp) {
+		// Handle the case where there is a classification error
+		addBypassableCensor(jqEl, "NOT SURE");
+		return;
+	}
+	// console.log(resp);
+	var concepts = resp.outputs[0].data.concepts;
+	var safeConcept, drugConcept, goreConcept, suggestiveConcept, explicitConcept;
+	concepts.forEach(function(el) {
+		switch(el.name) {
+			case "gore":
+				goreConcept = el;
+				break;
+			case "drug":
+				drugConcept = el;
+				break;
+			case "suggestive":
+				suggestiveConcept = el;
+				break;
+			case "explicit":
+				explicitConcept = el;
+				break;
+			case "safe":
+				safeConcept = el;
+				break;
+		}
+	})
+
+	if (safeConcept && safeConcept.value > conceptThreshold) {
+		// the content is deemed safe and can be uncensored
+		jqEl.removeClass("blur").siblings(".censirCenteredContainer").empty();
+	} else {
+		// report the nature of the trigger content
+		function triggerListReducer(accum, currConcept) {
+			triggerName = currConcept.name;
+			// console.log(triggername, currConcept.value);
+
+			if (currConcept.value > triggerConceptThreshold) {
+				return accum ? accum + ", " + triggerName : triggerName;
+			} else {
+				return accum;
+			}
+		};
+
+
+		var triggerConcepts = [drugConcept, goreConcept, suggestiveConcept, explicitConcept]
+		var triggerList = triggerConcepts.reduce(triggerListReducer, "");
+		var triggerList = "Warning: " + (triggerList || "unknown" )
+
+		// jqEl.siblings(".censirCenteredContainer").addClass("triggerWarning").html(triggerList);
+		addBypassableCensor(jqEl, triggerList);
+	}
+};
+
+function addBypassableCensor(jqEl, message) {
+	if (message) {
+		jqEl.siblings(".censirCenteredContainer").addClass("triggerWarning").html(message);
+	}
+
+}
 
 
 function drawLoadingSpinner() {

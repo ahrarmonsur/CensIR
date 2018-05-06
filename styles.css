@@ -19,6 +19,13 @@ img.blur {
 	transform: translate(-50%, -50%);
 }
 
+.triggerWarning {
+	background: red;
+	color: white;
+	padding: 5px;
+	text-transform: uppercase;
+}
+
 
 
 /* CSS LOADING ANIMATION  */
