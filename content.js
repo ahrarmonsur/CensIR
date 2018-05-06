@@ -43,7 +43,7 @@ function prepareForCensir(jqEls) {
 	var imgs = wrapInCensirContainer(jqEls).addClass("blur");
 
 	// Add loading animations on top of each image
-	imgs.siblings(".censirCenteredContainer").html(loader);
+	addBypassableCensor(imgs, loader);
 	return imgs;
 };
 
@@ -52,7 +52,7 @@ function handleModerationRating(resp, jqEl) {
 	// jqEl: jquery DOM element to modify based on the classification
 	if (!resp) {
 		// Handle the case where there is a classification error
-		addBypassableCensor(jqEl, "NOT SURE");
+		// addBypassableCensor(jqEl, "NOT SURE");
 		return;
 	}
 	var concepts = resp.outputs[0].data.concepts;
@@ -95,6 +95,7 @@ function handleModerationRating(resp, jqEl) {
 					triggerName = currConcept.name;
 					break;
 			}
+			triggerName = triggerName + " (" + (currConcept.value * 100).toFixed(1) + "%)";
 
 			if (currConcept.value > triggerConceptThreshold) {
 				return accum ? accum + ", " + triggerName : triggerName;
@@ -106,28 +107,32 @@ function handleModerationRating(resp, jqEl) {
 
 		var triggerConcepts = [drugConcept, goreConcept, suggestiveConcept, explicitConcept]
 		var triggerList = triggerConcepts.reduce(triggerListReducer, "");
-		var triggerList = "Warning: " + (triggerList || "unknown" )
+		var triggerList = "May contain" + (triggerList ? ": " + triggerList : " unsafe content");
 
 		// jqEl.siblings(".censirCenteredContainer").addClass("triggerWarning").html(triggerList);
-		addBypassableCensor(jqEl, triggerList);
+		addBypassableCensor(jqEl, triggerList, true);
 	}
 };
 
-function addBypassableCensor(jqEl, message) {
+function addBypassableCensor(jqEl, message, isWarning) {
 	if (message) {
-		jqEl.siblings(".censirCenteredContainer").addClass("triggerWarning").html(message);
+		$(jqEl).parent(".censirContainer").addClass("bypassable");
+		$(jqEl).siblings(".censirCenteredContainer").html(message);
+		if (isWarning) {
+			$(jqEl).siblings(".censirCenteredContainer").addClass("triggerWarning");
+		}
 	}
 
-	$(jqEl).parent().click(function(e) {
-		if ($(this).find(".triggerWarning").length) {
+	$(jqEl).parent(".censirContainer").click(function(e) {
+		if ($(this).hasClass("bypassable")) {
 			e.preventDefault();
 		}
 		$(jqEl).removeClass("blur").siblings(".censirCenteredContainer").removeClass("triggerWarning").empty();
 	});
-}
+};
 
 
 function drawLoadingSpinner() {
 	var elementHTML = "<div class=\"lds-grid\"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>";
 	return elementHTML;
-}
+};
