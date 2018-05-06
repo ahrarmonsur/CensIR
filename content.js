@@ -1,5 +1,5 @@
 var conceptThreshold = 0.9;			// Confidence level of classification which qualifies it for a concept
-var triggerConceptThreshold = 0.8;
+var triggerConceptThreshold = 0.7;
 
 $(document).ready(function() {
 	var clarifaiApp = new Clarifai.App({
