@@ -14,6 +14,15 @@ function reportBackCallback(inputStr) {
 	console.log("TAB SENT THIISSSSSS: " + inputStr);
 }
 
+
+
+// var clarifaiApp = new Clarifai.App({
+// 	apiKey: "be92bb8592f44e7fa02259b00bf0e332"
+// });
+//
+// console.log(clarifaiApp);
+
+
 // console.log("Atleast reached background.js")
 // chrome.runtime.onMessage.addListener (
 // 	function (request, sender, sendResponse) {

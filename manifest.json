@@ -19,6 +19,7 @@
 	"background": {
 		"persistent": false,
 		"scripts": [
+//			"ext/clarifai-sdk-2.7.1.js",
 			"background.js"
 		]
 	},
@@ -26,7 +27,11 @@
 		{
 			"matches": ["<all_urls>"],
 			"css": ["styles.css"],
-			"js": ["ext/jquery-3.3.1.js", "content.js"],
+			"js": [
+				"ext/clarifai-sdk-2.7.1.js",
+				"ext/jquery-3.3.1.js",
+				"content.js"
+			],
           	"all_frames": true
 		}
 	],
